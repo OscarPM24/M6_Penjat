@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penjat</title>
     <script src="js/penjat.js"></script>
+    <link href="styles.css" rel="stylesheet" />
 </head>
 <body>
-    <div>
-        <button onclick="startPenjat()">Penjat</button>
-        <button onclick="clearData()">Clear stats</button>
+    <div id="menu">
+        <button id="but_penjat" class="button" onclick="start()">Start game</button>
+        <button id="but_stats" class="button" onclick="stats()">Player Stats</button>
     </div>
 
     <div id="jocPenjat"></div>
@@ -19,5 +20,6 @@
     <img src="" id="imatgePenjat" />
 
     <div id="lletresUtilitzades"></div>
+
 </body>
 </html>

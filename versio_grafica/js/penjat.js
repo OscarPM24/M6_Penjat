@@ -1,24 +1,4 @@
-function startPenjat() {
-    console.log("1. Start game \n2. Stats\n3. Leave");
-    let option = prompt("Select Option");
-
-    switch (option) {
-        case "1":
-            start();
-            break;
-        case "2":
-            stats();
-            break;
-        case "3":
-            exit();
-            break;
-        default:
-            console.error("Error: Try again");
-            startPenjat();
-            break;
-    }
-}
-
+// Variables globales
 let wordGuess = [];
 let letters = "";
 let attempts = 6;
@@ -26,61 +6,46 @@ let word = "";
 
 function start() {
     word = prompt("Type a word to start playing");
-    if (word == null || word.length < 1) {
-        start();
-        return;
-    } 
+    if (word == null || word.length < 1) { return; } 
     word = word.toLowerCase();
-    saveData("gamesPlayed");
-    for (let i = 0; i < word.length; i++) {
-        wordGuess[i] = "_";
-    }
+    wordGuess = [];
     attempts = 6;
     letters = "";
 
-    printWord(wordGuess);
-    printImg(attempts);
-    generateLetters();
+    for (let i = 0; i < word.length; i++) {
+        wordGuess[i] = "_";
+    }
+    
+    printWord();
+    printImg();
+    printLettersAttempts();
+    generateLetters();    
+    saveData("gamesPlayed");
 }
 
 function play(guess) {
     if (attempts == 0) { return; }
     guess = guess.toLowerCase();
-    if (guess.length != 1) {
-        console.error("Error: Please type only one letter");
-        return;
-    } else if (!guess.match(/[a-z]/i)) {
-        console.error("Error: Only a-z letters are allowed");
-        return;
-    } else if (letters.includes(guess)) {
-        console.error("Error: The letter has already been guessed");
-        return;
-    }
-
     if (word.includes(guess)) {
-        console.log("Correct!");
         for (let i = 0; i < word.length; i++) {
             if (word[i] == guess) {
                 wordGuess[i] = guess;
             }
         }
-        if (checkWin(wordGuess)) {
-            printWord(wordGuess);
-            console.log("You won! 😄");
-            saveData("gamesWon");
-            return;
-        }
     } else {
-        console.log("Incorrect!");
         attempts--;
     }
-    letters += ` ${guess} `;
+    letters += ` ${guess}`;
     printWord();
     printImg();
-    printLetters();
-    if (attempts == 0) {
-        console.log("You lost 😭");
-        saveData("gamesLost");
+    printLettersAttempts();
+    disableButton(guess);
+    if (checkWin(wordGuess)) { 
+        winAlert(); 
+        return;
+    }
+    if (attempts == 0) { 
+        loseAlert();
         return;
     }
 }
@@ -90,16 +55,22 @@ function stats() {
     let gamesWon = localStorage.getItem("gamesWon");
     let gamesLost = localStorage.getItem("gamesLost");
 
-    console.log(`Games played: ${gamesPlayed}`);
-    console.log(`Games won: ${gamesWon} (${(gamesWon/gamesPlayed)*100}%)`);
-    console.log(`Games lost: ${gamesLost} (${(gamesLost/gamesPlayed)*100}%)`);
+    let stats = window.open("", "_blank");
+    stats.document.write(`<h1>Games played: ${gamesPlayed}<br>`);
+    stats.document.write(`Games won: ${gamesWon} (${(gamesWon/gamesPlayed)*100}%)<br>`);
+    stats.document.write(`Games lost: ${gamesLost} (${(gamesLost/gamesPlayed)*100}%)</h1><br>`);
+    stats.document.write(`<button onclick="localStorage.clear()">Clear Stats</button>`);
 }
 
-function exit() {
-    console.log("Thanks for playing.");
-    return;
-}
+function generateLetters() {
+    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let divButtons = document.getElementById("abecedari");
+    divButtons.innerHTML = "";
 
+    for (let i = 0; i < letters.length; i++) {
+        divButtons.innerHTML += `<button id='${letters[i].toLowerCase()}' class="button letters" onclick="play('${letters[i]}')">${letters[i]}</button>`;
+    }
+}
 
 function printWord() {
     let word = "";
@@ -138,16 +109,31 @@ function printImg() {
     }        
 }
 
-function printLetters() {
+function printLettersAttempts() {
     let divLetters = document.getElementById("lletresUtilitzades");
-        divLetters.innerHTML = `<h1>${letters}</h1>`;
+    divLetters.innerHTML = `<h1>Letters used: ${letters}</h1><br>`;
+    divLetters.innerHTML += `<h1>Attempts remaining: ${attempts}</h1>`;
 }
 
+function disableButton(button_id) {
+    let button = document.getElementById(button_id);
+    button.disabled = true;
+}
 function checkWin() {
     if (!wordGuess.includes("_")) {
         return true;
     }
     return false;
+}
+
+function winAlert() {
+    saveData("gamesWon");
+    alert("Congratulations, you won! 😄");
+}
+
+function loseAlert() {
+    saveData("gamesLost");
+    alert(`You lost 😭 \nThe word was '${word}'`);
 }
 
 function saveData(stat) {
@@ -157,18 +143,4 @@ function saveData(stat) {
     }
     statValue = parseInt(statValue) + 1;
     localStorage.setItem(stat, statValue);
-}
-
-function clearData() {
-    localStorage.clear();
-}
-
-function generateLetters() {
-    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let divButtons = document.getElementById("abecedari");
-    divButtons.innerHTML = "";
-
-    for (let i = 0; i < letters.length; i++) {
-        divButtons.innerHTML += `<button onclick="play('${letters[i]}')">${letters[i]}</button>`;
-    }
 }
