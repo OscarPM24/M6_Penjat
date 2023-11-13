@@ -57,8 +57,8 @@ function stats() {
 
     let stats = window.open("", "_blank");
     stats.document.write(`<h1>Games played: ${gamesPlayed}<br>`);
-    stats.document.write(`Games won: ${gamesWon} (${(gamesWon/gamesPlayed)*100}%)<br>`);
-    stats.document.write(`Games lost: ${gamesLost} (${(gamesLost/gamesPlayed)*100}%)</h1><br>`);
+    stats.document.write(`Games won: ${gamesWon} (${((gamesWon/gamesPlayed)*100).toFixed(2)}%)<br>`);
+    stats.document.write(`Games lost: ${gamesLost} (${((gamesLost/gamesPlayed)*100).toFixed(2)}%)</h1><br>`);
     stats.document.write(`<button onclick="localStorage.clear()">Clear Stats</button>`);
 }
 
